@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What a Real Claude Code Setup Looks Like | Ectobox</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+        :root {
+            --ec-red: #DE392A;
+            --ec-red-dark: #C42E21;
+            --ec-charcoal: #323031;
+            --ec-teal: #7EBEC5;
+            --ec-gray-700: #374151;
+            --ec-gray-500: #6B7280;
+            --ec-gray-200: #E5E7EB;
+            --ec-gray-100: #F3F4F6;
+            --ec-success: #22C55E;
+            --ec-info: #3B82F6;
+            --ec-warning: #EAB308;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--ec-gray-700);
+            background: #fff;
+            line-height: 1.6;
+        }
+
+        /* Slide system */
+        .slide {
+            min-height: 100vh;
+            height: 100vh;
+            padding: 60px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            border-bottom: 1px solid var(--ec-gray-200);
+            scroll-snap-align: start;
+            overflow-y: auto;
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 20px;
+            right: 40px;
+            font-size: 13px;
+            color: var(--ec-gray-500);
+            font-weight: 500;
+        }
+
+        /* Title slide */
+        .slide-title {
+            background: var(--ec-charcoal);
+            color: #fff;
+            text-align: center;
+        }
+        .slide-title h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            line-height: 1.15;
+        }
+        .slide-title h1 span { color: var(--ec-red); }
+        .slide-title .subtitle {
+            font-size: 20px;
+            font-weight: 400;
+            color: #a0a0a8;
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+        .slide-title .byline {
+            font-size: 14px;
+            color: var(--ec-teal);
+            font-weight: 500;
+        }
+
+        /* Section header slides */
+        .slide-section {
+            background: var(--ec-gray-100);
+        }
+        .slide-section h2 {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--ec-charcoal);
+            margin-bottom: 12px;
+        }
+        .slide-section .section-desc {
+            font-size: 20px;
+            color: var(--ec-gray-500);
+            max-width: 600px;
+        }
+        .section-tag {
+            display: inline-block;
+            background: var(--ec-red);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 4px 12px;
+            border-radius: 3px;
+            margin-bottom: 16px;
+        }
+
+        /* Content slides */
+        h2 { font-size: 32px; font-weight: 700; color: var(--ec-charcoal); margin-bottom: 24px; }
+        h3 { font-size: 20px; font-weight: 700; color: var(--ec-charcoal); margin-bottom: 12px; }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 24px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid var(--ec-gray-200);
+            border-radius: 8px;
+            padding: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .card-accent { border-top: 3px solid var(--ec-red); }
+        .card-teal { border-top: 3px solid var(--ec-teal); }
+        .card-success { border-top: 3px solid var(--ec-success); }
+        .card-info { border-top: 3px solid var(--ec-info); }
+
+        .card h3 { font-size: 18px; margin-bottom: 10px; }
+        .card p { font-size: 15px; line-height: 1.65; }
+
+        .callout {
+            border-left: 4px solid var(--ec-red);
+            background: #fdf2f2;
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-radius: 0 6px 6px 0;
+        }
+        .callout-teal {
+            border-left-color: var(--ec-teal);
+            background: #f0f9fa;
+        }
+        .callout-info {
+            border-left-color: var(--ec-info);
+            background: #eff6ff;
+        }
+        .callout p { font-size: 15px; margin: 0; }
+        .callout strong { color: var(--ec-charcoal); }
+
+        /* Code blocks */
+        code {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--ec-gray-100);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 14px;
+            color: var(--ec-red-dark);
+        }
+        pre {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--ec-charcoal);
+            color: #e0e0e8;
+            padding: 24px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.7;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+        pre .comment { color: #6b7280; }
+        pre .highlight { color: var(--ec-teal); }
+        pre .keyword { color: #f59e0b; }
+        pre .string { color: #34d399; }
+
+        /* Diagram boxes */
+        .diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 32px 0;
+            flex-wrap: wrap;
+        }
+        .diagram-box {
+            background: var(--ec-charcoal);
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 140px;
+        }
+        .diagram-box.red { background: var(--ec-red); }
+        .diagram-box.teal { background: #2a7a82; }
+        .diagram-box.outline {
+            background: transparent;
+            border: 2px solid var(--ec-gray-500);
+            color: var(--ec-gray-500);
+        }
+        .diagram-arrow {
+            font-size: 24px;
+            color: var(--ec-gray-500);
+            font-weight: 700;
+        }
+
+        /* Comparison table */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 15px;
+        }
+        .compare-table th {
+            background: var(--ec-charcoal);
+            color: #fff;
+            padding: 14px 20px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .compare-table td {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--ec-gray-200);
+        }
+        .compare-table tr:nth-child(even) td {
+            background: var(--ec-gray-100);
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-green { background: #dcfce7; color: #166534; }
+        .badge-yellow { background: #fef9c3; color: #854d0e; }
+        .badge-gray { background: var(--ec-gray-200); color: var(--ec-gray-700); }
+
+        /* Numbered list with descriptions */
+        .step-list { list-style: none; counter-reset: step; margin: 20px 0; }
+        .step-list li {
+            counter-increment: step;
+            padding: 16px 0 16px 60px;
+            position: relative;
+            border-bottom: 1px solid var(--ec-gray-200);
+        }
+        .step-list li:last-child { border-bottom: none; }
+        .step-list li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 16px;
+            width: 36px;
+            height: 36px;
+            background: var(--ec-red);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 15px;
+        }
+        .step-list li strong { display: block; font-size: 16px; color: var(--ec-charcoal); margin-bottom: 4px; }
+
+        /* Big stat */
+        .stat-row {
+            display: flex;
+            gap: 40px;
+            margin: 32px 0;
+            justify-content: center;
+        }
+        .stat-block { text-align: center; }
+        .stat-number {
+            font-size: 56px;
+            font-weight: 800;
+            color: var(--ec-red);
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: var(--ec-gray-500);
+            font-weight: 500;
+            margin-top: 8px;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--ec-charcoal);
+            color: #a0a0a8;
+            padding: 40px 80px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            scroll-snap-align: end;
+        }
+        .footer a { color: var(--ec-teal); text-decoration: none; }
+
+        /* Scroll hint on title slide */
+        .scroll-hint {
+            position: absolute;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: #606068;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .scroll-hint-arrow {
+            width: 20px;
+            height: 20px;
+            border-right: 2px solid #606068;
+            border-bottom: 2px solid #606068;
+            transform: rotate(45deg);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* Slide nav dots */
+        .slide-nav {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+        .slide-nav a {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--ec-gray-200);
+            display: block;
+            transition: background 0.3s, transform 0.3s;
+        }
+        .slide-nav a:hover {
+            background: var(--ec-red);
+            transform: scale(1.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .slide { padding: 40px 24px; }
+            .slide-title h1 { font-size: 32px; }
+            .content-grid { grid-template-columns: 1fr; }
+            .stat-row { flex-direction: column; gap: 24px; }
+            .footer { padding: 24px; flex-direction: column; gap: 8px; }
+        }
+
+        @media print {
+            .slide { min-height: auto; page-break-after: always; border: none; padding: 40px; }
+            .slide-number { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nav dots -->
+<nav class="slide-nav" id="slideNav"></nav>
+
+<!-- SLIDE 1: Title -->
+<div class="slide slide-title" id="s1">
+    <div>
+        <h1>What a <span>Real</span> Claude Code<br>Setup Looks Like</h1>
+        <p class="subtitle">Lessons from three months of building a structured AI development workflow, and what we would do differently next time.</p>
+        <p class="byline">Ectobox | sanchit.sahay@ectobox.com</p>
+    </div>
+    <div class="scroll-hint">
+        <span>Scroll</span>
+        <div class="scroll-hint-arrow"></div>
+    </div>
+    <span class="slide-number">1</span>
+</div>
+
+<!-- SLIDE 2: The Problem -->
+<div class="slide" id="s2">
+    <h2>The Problem</h2>
+    <p style="font-size: 18px; max-width: 740px; margin-bottom: 32px;">Most teams using Claude Code treat every session like a blank slate. They paste in context, re-explain coding conventions, correct the same mistakes, and hope for consistency. It is like onboarding a new contractor every morning who forgets everything by evening.</p>
+
+    <div class="content-grid">
+        <div class="card card-accent">
+            <h3>What "default" looks like</h3>
+            <p>You open Claude Code, describe what you want, and Claude writes code using its training. The code works, but it does not follow your naming conventions, it uses patterns you have already rejected, and it forgets the decision you made last Tuesday about the data model.</p>
+        </div>
+        <div class="card card-teal">
+            <h3>What "production" looks like</h3>
+            <p>You open Claude Code, and it already knows your stack, your conventions, your project history, and why you chose polling over WebSockets. It asks for confirmation before invoking tools, and it remembers that you hate em-dashes. You spend your time on the problem, not on context-setting.</p>
+        </div>
+    </div>
+
+    <div class="callout" style="margin-top: 32px;">
+        <p><strong>The core insight:</strong> Claude Code is not just a chat interface. It is a configurable system with a file-based architecture that lets you persist context, enforce rules, and create reusable capabilities. Most users never touch these features.</p>
+    </div>
+    <span class="slide-number">2</span>
+</div>
+
+<!-- SLIDE 3: Architecture Overview -->
+<div class="slide slide-section" id="s3">
+    <div>
+        <span class="section-tag">Architecture</span>
+        <h2>The Five Layers</h2>
+        <p class="section-desc">A production Claude Code setup has five distinct layers, each solving a different problem. They compose together without conflicting.</p>
+    </div>
+    <span class="slide-number">3</span>
+</div>
+
+<!-- SLIDE 4: The Five Layers Diagram -->
+<div class="slide" id="s4">
+    <h2>How the Layers Stack</h2>
+    <p style="margin-bottom: 16px;">Think of it like configuring an IDE. You would not write code in a text editor with no linter, no snippets, and no project settings. Claude Code's configuration layers serve the same purpose, except they configure an AI collaborator instead of a text editor.</p>
+
+    <div class="diagram">
+        <div class="diagram-box red">CLAUDE.md<br><small>Governance</small></div>
+        <div class="diagram-arrow">+</div>
+        <div class="diagram-box">Rules<br><small>Auto-enforce</small></div>
+        <div class="diagram-arrow">+</div>
+        <div class="diagram-box teal">Skills<br><small>On-demand</small></div>
+        <div class="diagram-arrow">+</div>
+        <div class="diagram-box">Memory<br><small>Cross-session</small></div>
+        <div class="diagram-arrow">+</div>
+        <div class="diagram-box outline">Workflows<br><small>Process</small></div>
+    </div>
+
+    <table class="compare-table" style="margin-top: 24px;">
+        <tr>
+            <th>Layer</th>
+            <th>What it does</th>
+            <th>When it loads</th>
+            <th>Analogy</th>
+        </tr>
+        <tr>
+            <td><strong>CLAUDE.md</strong></td>
+            <td>Project rules, directory map, governance table</td>
+            <td>Every session, automatically</td>
+            <td>The employee handbook</td>
+        </tr>
+        <tr>
+            <td><strong>.claude/rules/</strong></td>
+            <td>Coding conventions scoped to file paths</td>
+            <td>When editing matching files</td>
+            <td>ESLint rules per directory</td>
+        </tr>
+        <tr>
+            <td><strong>.claude/skills/</strong></td>
+            <td>Reusable capabilities with domain context</td>
+            <td>On user invocation (confirmed first)</td>
+            <td>IDE plugins you activate when needed</td>
+        </tr>
+        <tr>
+            <td><strong>Auto-memory</strong></td>
+            <td>User preferences, project status, feedback</td>
+            <td>Every session, automatically</td>
+            <td>The team wiki that updates itself</td>
+        </tr>
+        <tr>
+            <td><strong>Workflows</strong></td>
+            <td>Process templates, checklists, frameworks</td>
+            <td>When referenced by a spec or memory trigger</td>
+            <td>SOPs in a binder, pulled when needed</td>
+        </tr>
+    </table>
+    <span class="slide-number">4</span>
+</div>
+
+<!-- SLIDE 5: CLAUDE.md -->
+<div class="slide" id="s5">
+    <span class="section-tag">Layer 1</span>
+    <h2>CLAUDE.md: The Governance File</h2>
+    <p style="margin-bottom: 20px;">This is the most important file in your setup. It loads automatically at the start of every conversation and tells Claude who you are, how your project is structured, and what rules to follow. Think of it as an always-on briefing document.</p>
+
+    <div class="content-grid">
+        <div>
+            <h3>What belongs here</h3>
+            <ul class="step-list">
+                <li><strong>Directory map</strong>A quick reference so Claude knows where things live without exploring.</li>
+                <li><strong>Governance table</strong>"For this task, load this one file." Prevents Claude from loading everything at once and burning context.</li>
+                <li><strong>Hard rules</strong>Coding standards, communication preferences, architectural principles that apply everywhere.</li>
+                <li><strong>Skills index</strong>A table of available skills so Claude can suggest (not auto-invoke) the right one.</li>
+            </ul>
+        </div>
+        <div>
+            <h3>What does NOT belong here</h3>
+            <div class="callout" style="margin-top: 0;">
+                <p>API documentation, code examples, detailed architecture descriptions, or anything longer than a few sentences per topic. CLAUDE.md loads every session. Every line costs context tokens, and context tokens are your budget for actual work.</p>
+            </div>
+            <div class="callout-teal callout">
+                <p><strong>Rule of thumb:</strong> Keep it under 200 lines. If it is getting longer, the content probably belongs in a skill, a rule file, or a workflow document that loads only when needed.</p>
+            </div>
+            <h3>Hierarchy</h3>
+            <p>CLAUDE.md files cascade like CSS. A file at the project root sets global rules. A file in a subdirectory can add or override rules for that context. A file in <code>_codeBase/ignition/</code> adds Ignition-specific rules without repeating the global ones.</p>
+        </div>
+    </div>
+    <span class="slide-number">5</span>
+</div>
+
+<!-- SLIDE 6: Path-Scoped Rules -->
+<div class="slide" id="s6">
+    <span class="section-tag">Layer 2</span>
+    <h2>Path-Scoped Rules: Convention Enforcement</h2>
+    <p style="margin-bottom: 20px;">Rules in <code>.claude/rules/</code> activate automatically when Claude edits files matching a path pattern. They are invisible to the user and require no invocation. This is where coding conventions go, not in CLAUDE.md.</p>
+
+    <div class="content-grid">
+        <div>
+            <pre><span class="comment">// .claude/rules/jython.md</span>
+<span class="comment">// Activates for: ignition/**/*.py</span>
+
+<span class="keyword">Python 2.7 syntax only.</span>
+<span class="string">No f-strings, no walrus operator,
+no type hints.</span>
+
+Use str.format() or % formatting.
+Full module paths in imports.
+Use system.kanoa.* APIs.
+
+<span class="highlight">unichr(0x2705)</span> not '✅'
+<span class="comment">// Jython Unicode limitation</span></pre>
+        </div>
+        <div>
+            <h3>Why this matters</h3>
+            <p>Without path-scoped rules, Claude will write modern Python 3 for your Jython 2.7 codebase. You will correct it. It will apologize. Next session, it will do it again. Rules make the correction permanent and automatic.</p>
+
+            <h3 style="margin-top: 24px;">Good candidates for rules</h3>
+            <p>Language version constraints, API usage patterns, naming conventions, framework-specific idioms, and anything you have corrected more than twice. If you find yourself saying "no, we do it this way," that is a rule waiting to be written.</p>
+
+            <div class="callout-info callout" style="margin-top: 20px;">
+                <p><strong>Key difference from CLAUDE.md:</strong> Rules are path-scoped and invisible. They load only when relevant files are being edited, so they cost nothing in sessions where you are not touching those files.</p>
+            </div>
+        </div>
+    </div>
+    <span class="slide-number">6</span>
+</div>
+
+<!-- SLIDE 7: Skills -->
+<div class="slide" id="s7">
+    <span class="section-tag">Layer 3</span>
+    <h2>Skills: Reusable Capabilities</h2>
+    <p style="margin-bottom: 20px;">Skills are markdown files in <code>.claude/skills/</code> that give Claude domain-specific knowledge and instructions on demand. They are like plugins: you activate them when you need a particular capability, and they stay dormant otherwise.</p>
+
+    <div class="content-grid">
+        <div class="card card-accent">
+            <h3>Reference skills</h3>
+            <p>Load domain knowledge for a specific context. A Kanoa API skill loads function signatures, parameter formats, and common patterns so Claude writes correct API calls without searching documentation.</p>
+            <p style="margin-top: 12px; font-size: 13px; color: var(--ec-gray-500);">Examples: /kanoa-api, /kanoa-tags, /perspective-views, /ectobox-library, /ignition-theme</p>
+        </div>
+        <div class="card card-teal">
+            <h3>Process skills</h3>
+            <p>Guide Claude through a multi-step workflow. A spec-developer skill interviews you about your idea, asks non-obvious questions, and produces a structured specification document at the end.</p>
+            <p style="margin-top: 12px; font-size: 13px; color: var(--ec-gray-500);">Examples: /spec-developer, /spec-developer-explore, /tech-comm, /mermaid-style</p>
+        </div>
+        <div class="card card-info">
+            <h3>Navigation skills</h3>
+            <p>Help Claude find things in a large repository. A project-index skill maps topics to file paths so Claude can locate the right reference document without trial and error.</p>
+            <p style="margin-top: 12px; font-size: 13px; color: var(--ec-gray-500);">Examples: /project-index</p>
+        </div>
+        <div class="card card-success">
+            <h3>Output skills</h3>
+            <p>Produce formatted deliverables. A brand skill ensures every HTML file follows the company design system, and a wiki skill formats content for Azure DevOps compatibility.</p>
+            <p style="margin-top: 12px; font-size: 13px; color: var(--ec-gray-500);">Examples: /ectobox-html-brand, /azure-devops-wiki, /mermaid-retrofit</p>
+        </div>
+    </div>
+
+    <div class="callout" style="margin-top: 24px;">
+        <p><strong>Practical tip:</strong> Do not auto-invoke skills. Add a governance rule that Claude must state which skill it wants to use and wait for confirmation. This prevents wasted context from skills loading when you did not need them.</p>
+    </div>
+    <span class="slide-number">7</span>
+</div>
+
+<!-- SLIDE 8: Memory -->
+<div class="slide" id="s8">
+    <span class="section-tag">Layer 4</span>
+    <h2>Memory: Cross-Session Persistence</h2>
+    <p style="margin-bottom: 20px;">Claude Code's auto-memory system writes small markdown files that persist between conversations. This is how Claude remembers your preferences, your project status, and the feedback you gave three weeks ago, without you having to repeat it.</p>
+
+    <div class="content-grid">
+        <div>
+            <h3>Four memory types</h3>
+            <table class="compare-table">
+                <tr><th>Type</th><th>What it stores</th></tr>
+                <tr><td><strong>User</strong></td><td>Your role, expertise, preferences, domain background</td></tr>
+                <tr><td><strong>Feedback</strong></td><td>Corrections and confirmed approaches (both failures and successes)</td></tr>
+                <tr><td><strong>Project</strong></td><td>Status, decisions, deadlines, who is doing what</td></tr>
+                <tr><td><strong>Reference</strong></td><td>Pointers to external systems (Jira boards, Grafana dashboards, Confluence spaces)</td></tr>
+            </table>
+
+            <div class="callout-teal callout" style="margin-top: 20px;">
+                <p><strong>Auto-triggers:</strong> Memory entries can include trigger conditions. For example, "whenever a delivery milestone happens, remind the user to check for documentation rot." These fire automatically when the condition matches, without the user needing to remember.</p>
+            </div>
+        </div>
+        <div>
+            <h3>What NOT to store in memory</h3>
+            <p>Code patterns (read the code), git history (use git log), debugging solutions (the fix is in the commit), architecture details (read the files), or anything ephemeral to the current session.</p>
+
+            <h3 style="margin-top: 24px;">The feedback loop</h3>
+            <p>Memory is most powerful for feedback. When you correct Claude ("do not mock the database in these tests"), that correction becomes a memory entry with the reason attached. Future sessions apply the correction without you having to repeat it. Over time, Claude's behavior converges on your preferences instead of resetting to defaults every morning.</p>
+
+            <h3 style="margin-top: 24px;">Memory index</h3>
+            <p>A <code>MEMORY.md</code> file serves as the master index. It loads every session and points to individual memory files. Keep it under 200 lines, because everything in it is context overhead.</p>
+        </div>
+    </div>
+    <span class="slide-number">8</span>
+</div>
+
+<!-- SLIDE 9: Workflows -->
+<div class="slide" id="s9">
+    <span class="section-tag">Layer 5</span>
+    <h2>Workflows: Process as Code</h2>
+    <p style="margin-bottom: 20px;">Workflows are markdown documents that define how you develop software. They are not Claude-specific features, but they become powerful when Claude knows about them and follows them. The governance table in CLAUDE.md tells Claude which workflow to load for which type of task.</p>
+
+    <div class="content-grid">
+        <div>
+            <h3>Process framework</h3>
+            <p>A shared set of rules that every project follows: development phases (URS, FRS, Design, Build, Test, Deliver, Retrospective), sign-off gates with objective checklists, mandatory spec updates when requirements change mid-build, and a tiered lessons-learned system that promotes recurring insights into the framework itself.</p>
+
+            <h3 style="margin-top: 20px;">Spec templates</h3>
+            <p>Standardized document structures for different project types. An app spec template covers standalone tools. A requirements template covers customer-facing Ignition projects. Both reference the process framework for shared rules, so you only maintain one set of quality gates.</p>
+        </div>
+        <div>
+            <h3>Why workflows beat prompting</h3>
+            <p>You could paste process instructions into every conversation. But a workflow file is version-controlled, reviewed at retrospectives, and improved over time. When Claude loads the workflow, it gets the latest version of your process, not a copy you made three months ago and forgot to update.</p>
+
+            <div class="callout" style="margin-top: 20px;">
+                <p><strong>Example:</strong> The process framework includes "rationalization detection" for build phases. It flags phrases like "should work now" or "I'm confident this fixes it" as red flags that require evidence. This is a lesson learned from real projects, codified into the framework, and automatically applied whenever the framework loads.</p>
+            </div>
+        </div>
+    </div>
+    <span class="slide-number">9</span>
+</div>
+
+<!-- SLIDE 10: How They Work Together -->
+<div class="slide slide-section" id="s10">
+    <div>
+        <span class="section-tag">Integration</span>
+        <h2>How the Layers Compose</h2>
+        <p class="section-desc">Each layer solves one problem. Together, they create a system where Claude has institutional knowledge without you managing it manually.</p>
+    </div>
+    <span class="slide-number">10</span>
+</div>
+
+<!-- SLIDE 11: A Real Session -->
+<div class="slide" id="s11">
+    <h2>What a Real Session Looks Like</h2>
+    <p style="margin-bottom: 8px;">Here is what happens when you open Claude Code in a configured repository and say "add a scheduling feature to the Balchem project."</p>
+
+    <ol class="step-list">
+        <li>
+            <strong>CLAUDE.md loads automatically</strong>
+            Claude reads the governance table and sees: "For Ignition customer features, load <code>workflows/requirements_gathering_template.md</code>." It does not load everything. It loads one file.
+        </li>
+        <li>
+            <strong>Memory provides context</strong>
+            The auto-memory index tells Claude that Balchem is a deployed project, that the user prefers direct feedback without cheerleading, and that the last doc audit was May 2026.
+        </li>
+        <li>
+            <strong>Claude suggests a skill</strong>
+            "I'd use /spec-developer to interview you through the requirements. Should I invoke it?" You confirm, and the skill loads an interview framework that asks non-obvious questions about the scheduling feature.
+        </li>
+        <li>
+            <strong>Rules activate during coding</strong>
+            When Claude starts writing Python for the Ignition gateway, the Jython rule auto-loads and enforces Python 2.7 syntax. The Kanoa rule ensures API calls use the correct parameter format. No correction needed.
+        </li>
+        <li>
+            <strong>Workflow gates apply</strong>
+            The requirements template includes sign-off checklists. Claude checks: "Every FR has an ID and priority? At least one negative test case? Interface table filled in for cross-component boundaries?" If not, it flags the gap before moving to build.
+        </li>
+        <li>
+            <strong>Memory updates for next time</strong>
+            At the end of the session, Claude saves relevant feedback and project status to memory. The next session picks up where this one left off.
+        </li>
+    </ol>
+    <span class="slide-number">11</span>
+</div>
+
+<!-- SLIDE 12: Results -->
+<div class="slide" id="s12" style="background: var(--ec-charcoal); color: #fff;">
+    <h2 style="color: #fff; text-align: center;">What Changes in Practice</h2>
+
+    <div class="stat-row">
+        <div class="stat-block">
+            <div class="stat-number">0</div>
+            <div class="stat-label">Convention corrections<br>per session (was 5-10)</div>
+        </div>
+        <div class="stat-block">
+            <div class="stat-number" style="color: var(--ec-teal);">14</div>
+            <div class="stat-label">Reusable skills<br>across all projects</div>
+        </div>
+        <div class="stat-block">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Path-scoped rules<br>auto-enforced silently</div>
+        </div>
+    </div>
+
+    <div style="max-width: 640px; margin: 40px auto 0; text-align: center;">
+        <p style="color: #a0a0a8; font-size: 16px;">The real metric is not speed. It is consistency. When Claude produces code that already follows your conventions, uses your API patterns, and fits your architecture, you spend review time on logic and design instead of formatting and corrections.</p>
+    </div>
+    <span class="slide-number" style="color: #606068;">12</span>
+</div>
+
+<!-- SLIDE 13: What's Next -->
+<div class="slide slide-section" id="s13">
+    <div>
+        <span class="section-tag">Honest Assessment</span>
+        <h2>Features We Evaluated and Deferred</h2>
+        <p class="section-desc">Not everything Claude Code offers is worth using from day one. These are capabilities we looked at, understood, and chose to skip for now.</p>
+    </div>
+    <span class="slide-number">13</span>
+</div>
+
+<!-- SLIDE 14: Advanced Features -->
+<div class="slide" id="s14">
+    <h2>Available but Not Yet Needed</h2>
+
+    <div class="content-grid">
+        <div class="card" style="border-top: 3px solid var(--ec-warning);">
+            <h3>Custom Subagents</h3>
+            <p><code>.claude/agents/</code> lets you define specialized AI agents with restricted tools and focused instructions. A "spec-reviewer" agent could check specs against quality gates using only read tools, preventing accidental edits.</p>
+            <p style="margin-top: 12px; font-size: 13px; color: var(--ec-gray-500);"><strong>Why we deferred:</strong> Solo workflow. The sign-off checklists in our process framework serve the same purpose with less complexity. Worth revisiting when the team grows.</p>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--ec-warning);">
+            <h3>Hooks</h3>
+            <p><code>.claude/hooks.json</code> lets you run shell commands before or after Claude uses specific tools. You could auto-validate frontmatter tags on every file write, or run a linter after every code edit.</p>
+            <p style="margin-top: 12px; font-size: 13px; color: var(--ec-gray-500);"><strong>Why we deferred:</strong> Hooks add debugging surface area. Our memory-based auto-triggers achieve similar enforcement with less operational risk.</p>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--ec-warning);">
+            <h3>@import in CLAUDE.md</h3>
+            <p>CLAUDE.md files can <code>@import ./path/to/file.md</code> to compose context from multiple files without duplication. Useful when the root file grows past 200 lines.</p>
+            <p style="margin-top: 12px; font-size: 13px; color: var(--ec-gray-500);"><strong>Why we deferred:</strong> Our root CLAUDE.md is 118 lines. No need to split what already fits.</p>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--ec-warning);">
+            <h3>CLAUDE.local.md</h3>
+            <p>A gitignored CLAUDE.md for machine-specific configuration (local paths, Docker host settings, personal preferences) that should not be shared with the team.</p>
+            <p style="margin-top: 12px; font-size: 13px; color: var(--ec-gray-500);"><strong>Why we deferred:</strong> Solo workflow on one machine. Becomes important when multiple developers share the repository.</p>
+        </div>
+    </div>
+    <span class="slide-number">14</span>
+</div>
+
+<!-- SLIDE 15: Getting Started -->
+<div class="slide" id="s15">
+    <span class="section-tag">Takeaways</span>
+    <h2>What We Would Do First if Starting Over</h2>
+    <p style="margin-bottom: 8px;">We built all five layers over three months of real project work. If we were starting fresh, this is the order we would follow based on where we saw the most impact.</p>
+
+    <ol class="step-list">
+        <li>
+            <strong>Start with CLAUDE.md</strong>
+            Write a directory map and three to five hard rules. This alone eliminates the "Claude does not know where anything is" problem. Keep it under 200 lines.
+        </li>
+        <li>
+            <strong>Add path-scoped rules for repeat corrections</strong>
+            Every time you correct Claude's coding style more than twice, write a rule in <code>.claude/rules/</code>. Scope it to the file pattern where it applies. This eliminates an entire category of back-and-forth.
+        </li>
+        <li>
+            <strong>Create skills for domain knowledge</strong>
+            If you have API documentation, framework conventions, or process workflows that Claude needs for specific tasks, package them as skills. Start with reference skills (they are just markdown files with structured information), then graduate to process skills as your workflow matures.
+        </li>
+        <li>
+            <strong>Let memory accumulate naturally</strong>
+            Do not pre-populate memory. Let it grow from real sessions. When Claude gets something wrong and you correct it, that correction becomes a feedback memory. Over time, the system learns your preferences organically.
+        </li>
+        <li>
+            <strong>Codify your process last</strong>
+            Once you have patterns that work (a spec template that prevents rework, a testing checklist that catches real bugs), write them as workflow documents and reference them from CLAUDE.md. Process is the last layer because it needs to be grounded in experience, not theory.
+        </li>
+    </ol>
+    <span class="slide-number">15</span>
+</div>
+
+<!-- SLIDE 16: Closing -->
+<div class="slide slide-title" id="s16" style="background: linear-gradient(135deg, var(--ec-charcoal) 0%, #1a1a1f 100%);">
+    <div>
+        <h1 style="font-size: 40px;">Claude Code is <span>configurable</span>.<br>Most people just never configure it.</h1>
+        <p class="subtitle">The difference between "AI that kind of helps" and "AI that knows how we work" is not a better model. It is better context management. This is what we learned building ours.</p>
+        <div style="margin-top: 48px;">
+            <p class="byline" style="font-size: 16px;">Ectobox | Manufacturing Digital Transformation</p>
+            <p style="color: #606068; font-size: 13px; margin-top: 8px;">sanchit.sahay@ectobox.com | www.ectobox.com</p>
+        </div>
+    </div>
+    <span class="slide-number" style="color: #606068;">16</span>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+    <span>&copy; 2026 Ectobox | Pittsburgh, PA</span>
+    <span><a href="https://www.ectobox.com">www.ectobox.com</a></span>
+</div>
+
+<script>
+(function() {
+    var slides = document.querySelectorAll('.slide');
+    var nav = document.getElementById('slideNav');
+
+    slides.forEach(function(slide, i) {
+        var dot = document.createElement('a');
+        dot.href = '#' + slide.id;
+        dot.title = 'Slide ' + (i + 1);
+        dot.dataset.index = i;
+        nav.appendChild(dot);
+    });
+
+    var dots = nav.querySelectorAll('a');
+
+    function updateActive() {
+        var scrollTop = window.scrollY || document.documentElement.scrollTop;
+        var winH = window.innerHeight;
+        var activeIndex = 0;
+
+        slides.forEach(function(slide, i) {
+            var top = slide.offsetTop;
+            if (scrollTop >= top - winH * 0.4) activeIndex = i;
+        });
+
+        dots.forEach(function(dot, i) {
+            dot.style.background = i === activeIndex ? '#DE392A' : '';
+            dot.style.transform = i === activeIndex ? 'scale(1.4)' : '';
+        });
+    }
+
+    window.addEventListener('scroll', updateActive, { passive: true });
+    updateActive();
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+            e.preventDefault();
+            var current = Math.round(window.scrollY / window.innerHeight);
+            var next = Math.min(current + 1, slides.length - 1);
+            slides[next].scrollIntoView({ behavior: 'smooth' });
+        }
+        if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+            e.preventDefault();
+            var current = Math.round(window.scrollY / window.innerHeight);
+            var prev = Math.max(current - 1, 0);
+            slides[prev].scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+})();
+</script>
+
+</body>
+</html>
