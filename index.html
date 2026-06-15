@@ -17,11 +17,11 @@
     --accent:        #4A5C2F;       /* olive green */
     --accent-dim:    rgba(74,92,47,0.12);
     --accent-glow:   rgba(74,92,47,0.06);
-    --steel:         #6B7057;       /* muted olive-grey */
-    --steel-dim:     #9A9882;       /* faded label */
+    --steel:         #4A4E3A;       /* muted olive-grey */
+    --steel-dim:     #6B6A56;       /* faded label */
     --text:          #1E2014;       /* near-black charcoal */
-    --text-muted:    #5A5A48;       /* body text */
-    --text-dim:      #7A7A62;       /* secondary text */
+    --text-muted:    #3C3C2E;       /* body text */
+    --text-dim:      #525240;       /* secondary text */
     --grid-line:     rgba(74,92,47,0.06);
   }
 
@@ -860,6 +860,119 @@
     .service-card { padding: 28px 20px; }
     .founders-card { padding: 24px 16px; }
   }
+
+  /* ─── CAROUSEL (mobile only) ─── */
+  .carousel-wrap {
+    position: relative;
+  }
+
+  .carousel-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 0;
+  }
+
+  .carousel-track::-webkit-scrollbar { display: none; }
+
+  .carousel-track .service-card,
+  .carousel-track .approach-item {
+    scroll-snap-align: start;
+    flex: 0 0 100%;
+    min-width: 0;
+  }
+
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  .carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border-bright);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .carousel-dot.active {
+    background: var(--accent);
+    transform: scale(1.25);
+  }
+
+  .carousel-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    padding: 0 4px;
+  }
+
+  .carousel-btn {
+    background: var(--surface);
+    border: 1px solid var(--border-bright);
+    color: var(--text);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .carousel-btn:hover { background: var(--surface-2); }
+  .carousel-btn:disabled { opacity: 0.3; cursor: default; }
+
+  .carousel-counter {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--steel-dim);
+  }
+
+  /* On desktop: hide carousel controls, show normal grid/list */
+  @media (min-width: 901px) {
+    .carousel-dots,
+    .carousel-nav { display: none; }
+
+    .carousel-track {
+      display: contents;
+    }
+
+    .carousel-track .service-card {
+      flex: unset;
+      min-width: unset;
+      scroll-snap-align: unset;
+    }
+
+    .carousel-track .approach-item {
+      flex: unset;
+      min-width: unset;
+      scroll-snap-align: unset;
+    }
+  }
+
+  /* Mobile: flatten grid containers so carousel track is the only child */
+  @media (max-width: 900px) {
+    .services-grid {
+      display: block;
+      background: transparent;
+      border: none;
+    }
+
+    .approach-list {
+      display: block;
+    }
+  }
 </style>
 </head>
 <body>
@@ -957,7 +1070,7 @@
     <p class="section-desc">End-to-end automation and digital transformation services — from strategy to commissioning.</p>
   </div>
   <div class="services-grid reveal">
-
+    <div class="carousel-track" id="servicesTrack">
     <!-- 1 -->
     <div class="service-card">
       <span class="service-num">01</span>
@@ -1066,6 +1179,17 @@
       </div>
     </div>
 
+    </div><!-- /carousel-track -->
+    <div class="carousel-nav" id="servicesNav">
+      <button class="carousel-btn" id="servicesPrev" aria-label="Previous">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L6 8l4 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <span class="carousel-counter" id="servicesCounter">1 / 6</span>
+      <button class="carousel-btn" id="servicesNext" aria-label="Next">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l4 5-4 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="carousel-dots" id="servicesDots"></div>
   </div>
 </section>
 
@@ -1078,6 +1202,7 @@
       <p class="section-desc">Two disciplines. One team. A firm built from the ground up to close the gap between technical excellence and project success.</p>
     </div>
     <div class="approach-list reveal">
+      <div class="carousel-track" id="approachTrack">
       <div class="approach-item">
         <div class="approach-num">01</div>
         <div>
@@ -1106,6 +1231,17 @@
           <div class="approach-item-desc">We leave teams better equipped than we found them — documentation, training, and operational readiness built in.</div>
         </div>
       </div>
+      </div><!-- /carousel-track -->
+      <div class="carousel-nav" id="approachNav">
+        <button class="carousel-btn" id="approachPrev" aria-label="Previous">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L6 8l4 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <span class="carousel-counter" id="approachCounter">1 / 4</span>
+        <button class="carousel-btn" id="approachNext" aria-label="Next">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l4 5-4 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="carousel-dots" id="approachDots"></div>
     </div>
   </div>
 
@@ -1185,7 +1321,7 @@
       </div>
       <div>
         <div class="contact-detail-label">Response Time</div>
-        <div class="contact-detail-value">Within 1 business day</div>
+        <div class="contact-detail-value">1–2 Business Days</div>
       </div>
     </div>
   </div>
@@ -1248,6 +1384,69 @@
     });
   }, { threshold: 0.1 });
   reveals.forEach(el => observer.observe(el));
+
+
+  /* ── Carousel logic (mobile only) ── */
+  function initCarousel(trackId, prevId, nextId, counterId, dotsId) {
+    const track   = document.getElementById(trackId);
+    const prev    = document.getElementById(prevId);
+    const next    = document.getElementById(nextId);
+    const counter = document.getElementById(counterId);
+    const dotsEl  = document.getElementById(dotsId);
+
+    if (!track) return;
+
+    const items = Array.from(track.children);
+    const total = items.length;
+    let current = 0;
+
+    // Build dots
+    items.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+      dot.addEventListener('click', () => goTo(i));
+      dotsEl.appendChild(dot);
+    });
+
+    function updateUI() {
+      counter.textContent = (current + 1) + ' / ' + total;
+      dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
+        d.classList.toggle('active', i === current);
+      });
+      prev.disabled = current === 0;
+      next.disabled = current === total - 1;
+    }
+
+    function goTo(index) {
+      current = Math.max(0, Math.min(index, total - 1));
+      const itemWidth = track.offsetWidth;
+      track.scrollTo({ left: itemWidth * current, behavior: 'smooth' });
+      updateUI();
+    }
+
+    prev.addEventListener('click', () => goTo(current - 1));
+    next.addEventListener('click', () => goTo(current + 1));
+
+    // Sync dots on manual swipe
+    track.addEventListener('scroll', () => {
+      const idx = Math.round(track.scrollLeft / track.offsetWidth);
+      if (idx !== current) { current = idx; updateUI(); }
+    }, { passive: true });
+
+    updateUI();
+  }
+
+  // Only activate on mobile
+  function setupCarousels() {
+    if (window.innerWidth <= 900) {
+      initCarousel('servicesTrack', 'servicesPrev', 'servicesNext', 'servicesCounter', 'servicesDots');
+      initCarousel('approachTrack', 'approachPrev', 'approachNext', 'approachCounter', 'approachDots');
+    }
+  }
+
+  setupCarousels();
+  window.addEventListener('resize', setupCarousels);
 
   /* ── Hamburger menu ── */
   const hamburger = document.getElementById('hamburger');
