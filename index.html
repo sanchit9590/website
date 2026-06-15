@@ -758,6 +758,108 @@
     opacity: 1;
     transform: none;
   }
+
+  /* ─── HAMBURGER MENU ─── */
+  .nav-hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    z-index: 200;
+  }
+  .nav-hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--text);
+    transition: all 0.3s;
+  }
+  .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+  .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ─── FORM ERROR ─── */
+  .form-error {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: #8B2E0A;
+    margin-top: 4px;
+    display: none;
+  }
+  .form-input.invalid, .form-textarea.invalid { border-color: #8B2E0A; }
+
+  /* ─── FORM SUCCESS / SPINNER ─── */
+  .form-success {
+    display: none;
+    background: var(--accent-dim);
+    border: 1px solid var(--accent);
+    padding: 20px 24px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    text-align: center;
+  }
+  .word-count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--steel-dim);
+    text-align: right;
+    margin-top: 4px;
+  }
+  .word-count.warn { color: #8B2E0A; }
+
+  /* ─── MOBILE BREAKPOINTS ─── */
+  @media (max-width: 900px) {
+    nav { padding: 0 24px; }
+    .nav-links { display: none; flex-direction: column; gap: 0; position: fixed;
+      top: 72px; left: 0; right: 0; background: rgba(245,240,232,0.98);
+      backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
+      padding: 16px 0; z-index: 99; }
+    .nav-links.open { display: flex; }
+    .nav-links li { width: 100%; }
+    .nav-links a { display: block; padding: 14px 24px; font-size: 14px; border-bottom: 1px solid var(--border); }
+    .nav-links a:last-child { border-bottom: none; }
+    .nav-cta { display: block; padding: 14px 24px !important; background: var(--accent); color: var(--bg) !important; }
+    .nav-hamburger { display: flex; }
+
+    .hero { grid-template-columns: 1fr; padding: 100px 24px 60px; gap: 40px; min-height: auto; }
+    .hero-right { order: -1; }
+    .hero-graphic { max-width: 260px; margin: 0 auto; }
+    .hero-h1 { font-size: clamp(36px, 9vw, 56px); }
+    .hero-stats { gap: 24px; flex-wrap: wrap; }
+
+    .services { padding: 80px 24px; }
+    .services-grid { grid-template-columns: 1fr; }
+
+    .approach { grid-template-columns: 1fr; padding: 80px 24px; gap: 48px; }
+    .approach-right { order: -1; }
+    .founders-card { padding: 32px 24px; }
+
+    .industries { padding: 60px 24px; }
+    .industries-inner { grid-template-columns: 1fr; gap: 32px; }
+
+    .contact { grid-template-columns: 1fr; padding: 80px 24px; gap: 48px; }
+    .form-row { grid-template-columns: 1fr; }
+
+    footer { flex-direction: column; gap: 12px; text-align: center; padding: 32px 24px; }
+  }
+
+  @media (max-width: 480px) {
+    nav { padding: 0 16px; }
+    .hero { padding: 88px 16px 48px; }
+    .services { padding: 60px 16px; }
+    .approach { padding: 60px 16px; }
+    .industries { padding: 48px 16px; }
+    .contact { padding: 60px 16px; }
+    .service-card { padding: 28px 20px; }
+    .founders-card { padding: 24px 16px; }
+  }
 </style>
 </head>
 <body>
@@ -779,6 +881,9 @@
     <li><a href="#industries">Industries</a></li>
     <li><a href="#contact" class="nav-cta">Get in Touch</a></li>
   </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- HERO -->
@@ -1018,8 +1123,8 @@
         <div class="founder-avatar">PM</div>
         <div>
           <div class="founder-name">Co-Founder</div>
-          <div class="founder-role">Project Management Professional · 5+ Years</div>
-          <div class="founder-bio">PMP-certified delivery leader with a track record in industrial automation project governance, client engagement, and cross-functional team coordination from concept to commissioning.</div>
+          <div class="founder-role">Project Management Professional · 9+ Years</div>
+          <div class="founder-bio">Delivery leader with a track record in industrial automation project governance, client engagement, and cross-functional team coordination from concept to commissioning.</div>
         </div>
       </div>
     </div>
@@ -1086,32 +1191,42 @@
   </div>
 
   <div class="contact-form reveal">
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">First Name</label>
-        <input type="text" class="form-input" placeholder="John">
+    <div class="form-success" id="formSuccess">
+      ✓ Message sent — we'll be in touch within 1 business day.
+    </div>
+    <div id="formFields">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name <span style="color:var(--accent)">*</span></label>
+          <input type="text" id="firstName" class="form-input" placeholder="John">
+          <div class="form-error" id="firstNameErr">First name is required.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name <span style="color:var(--accent)">*</span></label>
+          <input type="text" id="lastName" class="form-input" placeholder="Smith">
+          <div class="form-error" id="lastNameErr">Last name is required.</div>
+        </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Last Name</label>
-        <input type="text" class="form-input" placeholder="Smith">
+        <label class="form-label">Email <span style="color:var(--accent)">*</span></label>
+        <input type="email" id="email" class="form-input" placeholder="you@company.com">
+        <div class="form-error" id="emailErr">A valid email address is required.</div>
       </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" id="phone" class="form-input" placeholder="+1 (416) 000-0000">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message <span style="color:var(--accent)">*</span></label>
+        <textarea id="message" class="form-textarea" style="min-height: 140px;" placeholder="Tell us about your project or challenge..."></textarea>
+        <div class="word-count" id="wordCount">0 / 400 words</div>
+        <div class="form-error" id="messageErr">Please write at least 5 words (max 400).</div>
+      </div>
+      <button id="submitBtn" class="btn-primary" style="width: 100%; justify-content: center; border: none; cursor: pointer; font-size: 14px;">
+        Send Message
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </div>
-    <div class="form-group">
-      <label class="form-label">Email</label>
-      <input type="email" class="form-input" placeholder="you@company.com">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Phone Number</label>
-      <input type="tel" class="form-input" placeholder="+1 (416) 000-0000">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Message</label>
-      <textarea class="form-textarea" style="min-height: 140px;" placeholder="Tell us about your project or challenge..."></textarea>
-    </div>
-    <button class="btn-primary" style="width: 100%; justify-content: center; border: none; cursor: pointer; font-size: 14px;">
-      Send Message
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
   </div>
 </section>
 
@@ -1122,6 +1237,7 @@
 </footer>
 
 <script>
+  /* ── Scroll reveal ── */
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry, i) => {
@@ -1132,6 +1248,109 @@
     });
   }, { threshold: 0.1 });
   reveals.forEach(el => observer.observe(el));
+
+  /* ── Hamburger menu ── */
+  const hamburger = document.getElementById('hamburger');
+  const navLinks  = document.querySelector('.nav-links');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    navLinks.classList.toggle('open');
+  });
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      navLinks.classList.remove('open');
+    });
+  });
+
+  /* ── Word count ── */
+  const messageEl  = document.getElementById('message');
+  const wordCountEl = document.getElementById('wordCount');
+
+  function countWords(str) {
+    return str.trim().split(/\s+/).filter(w => w.length > 0).length;
+  }
+
+  messageEl.addEventListener('input', () => {
+    const wc = countWords(messageEl.value);
+    wordCountEl.textContent = wc + ' / 400 words';
+    wordCountEl.classList.toggle('warn', wc > 400);
+  });
+
+  /* ── Form validation & Formspree submission ── */
+  function showErr(id, show) {
+    document.getElementById(id).style.display = show ? 'block' : 'none';
+  }
+  function setInvalid(el, invalid) {
+    el.classList.toggle('invalid', invalid);
+  }
+
+  document.getElementById('submitBtn').addEventListener('click', async () => {
+    const firstName = document.getElementById('firstName');
+    const lastName  = document.getElementById('lastName');
+    const email     = document.getElementById('email');
+    const phone     = document.getElementById('phone');
+    const message   = document.getElementById('message');
+
+    let valid = true;
+
+    // First name
+    const fnOk = firstName.value.trim().length > 0;
+    setInvalid(firstName, !fnOk); showErr('firstNameErr', !fnOk);
+    if (!fnOk) valid = false;
+
+    // Last name
+    const lnOk = lastName.value.trim().length > 0;
+    setInvalid(lastName, !lnOk); showErr('lastNameErr', !lnOk);
+    if (!lnOk) valid = false;
+
+    // Email
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+    setInvalid(email, !emailOk); showErr('emailErr', !emailOk);
+    if (!emailOk) valid = false;
+
+    // Message word count
+    const wc = countWords(message.value);
+    const msgOk = wc >= 5 && wc <= 400;
+    setInvalid(message, !msgOk); showErr('messageErr', !msgOk);
+    if (!msgOk) valid = false;
+
+    if (!valid) return;
+
+    // Submit via Formspree
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('https://formspree.io/f/YOUR_FORMSPREE_ID', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          firstName: firstName.value.trim(),
+          lastName:  lastName.value.trim(),
+          email:     email.value.trim(),
+          phone:     phone.value.trim(),
+          message:   message.value.trim(),
+          _replyto:  email.value.trim(),
+          _subject:  'New enquiry from ' + firstName.value.trim() + ' ' + lastName.value.trim()
+        })
+      });
+
+      if (res.ok) {
+        document.getElementById('formFields').style.display = 'none';
+        document.getElementById('formSuccess').style.display = 'block';
+      } else {
+        alert('Something went wrong. Please email sanchit@octo-automation.ca directly.');
+        btn.textContent = 'Send Message';
+        btn.disabled = false;
+      }
+    } catch (e) {
+      alert('Network error. Please email sanchit@octo-automation.ca directly.');
+      btn.textContent = 'Send Message';
+      btn.disabled = false;
+    }
+  });
 </script>
 </body>
 </html>
