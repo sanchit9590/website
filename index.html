@@ -817,6 +817,22 @@
   /* ─── MOBILE BREAKPOINTS ─── */
   @media (max-width: 900px) {
     nav { padding: 0 24px; }
+
+    /* Approach section — tighten vertical space */
+    .approach { padding: 48px 24px 24px; gap: 24px; }
+
+    /* Approach carousel items — compact card style, auto height */
+    #approachTrack {
+      align-items: flex-start;
+    }
+    #approachTrack .approach-item {
+      padding: 20px 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      min-height: unset;
+      height: auto;
+      border-bottom: 1px solid var(--border);
+    }
     .nav-links { display: none; flex-direction: column; gap: 0; position: fixed;
       top: 72px; left: 0; right: 0; background: rgba(245,240,232,0.98);
       backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
@@ -971,6 +987,20 @@
 
     .approach-list {
       display: block;
+    }
+
+    /* Approach carousel card — compact, content-height only */
+    #approachTrack .approach-item {
+      padding: 24px 20px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      min-height: unset;
+      height: auto;
+      align-items: flex-start;
+    }
+
+    #approachTrack {
+      align-items: stretch;
     }
   }
 </style>
