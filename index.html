@@ -1421,7 +1421,11 @@
 
 
   /* ── Carousel logic (mobile only) ── */
+  const initializedCarousels = new Set();
+
   function initCarousel(trackId, prevId, nextId, counterId, dotsId) {
+    if (initializedCarousels.has(trackId)) return;
+
     const track   = document.getElementById(trackId);
     const prev    = document.getElementById(prevId);
     const next    = document.getElementById(nextId);
@@ -1430,11 +1434,13 @@
 
     if (!track) return;
 
+    initializedCarousels.add(trackId);
+
     const items = Array.from(track.children);
     const total = items.length;
     let current = 0;
 
-    // Build dots
+    dotsEl.innerHTML = '';
     items.forEach((_, i) => {
       const dot = document.createElement('button');
       dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
@@ -1448,12 +1454,10 @@
       dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
         d.classList.toggle('active', i === current);
       });
-      prev.disabled = current === 0;
-      next.disabled = current === total - 1;
     }
 
     function goTo(index) {
-      current = Math.max(0, Math.min(index, total - 1));
+      current = ((index % total) + total) % total;
       const itemWidth = track.offsetWidth;
       track.scrollTo({ left: itemWidth * current, behavior: 'smooth' });
       updateUI();
@@ -1462,7 +1466,6 @@
     prev.addEventListener('click', () => goTo(current - 1));
     next.addEventListener('click', () => goTo(current + 1));
 
-    // Sync dots on manual swipe
     track.addEventListener('scroll', () => {
       const idx = Math.round(track.scrollLeft / track.offsetWidth);
       if (idx !== current) { current = idx; updateUI(); }
@@ -1471,7 +1474,6 @@
     updateUI();
   }
 
-  // Only activate on mobile
   function setupCarousels() {
     if (window.innerWidth <= 900) {
       initCarousel('servicesTrack', 'servicesPrev', 'servicesNext', 'servicesCounter', 'servicesDots');
